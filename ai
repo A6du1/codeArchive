@@ -1,0 +1,48 @@
+import numpy
+import matplotlib.pyplot as plt 
+  #setup and parameters
+
+i_nodes = 5
+o_nodes = 2
+h_nodes = 3
+batch_size = 8
+
+i_data = numpy.random.randn(batch_size, i_nodes)
+o_data = numpy.random.randn(batch_size, o_nodes)
+
+w1 = numpy.random.randn(i_nodes, h_nodes)
+w2 = numpy.random.randn(h_nodes, o_nodes)
+
+loss_array = numpy.array([[]])
+indices = numpy.array([[]])
+for i in range(5000):
+  h_values = i_data.dot(w1)
+
+#rectified liniear unit (ReLU)
+#removes all negative values, replaces with zero
+
+  h_relu = numpy.maximum(h_values, 0)
+  o_data_predictions = h_relu.dot(w2)
+
+#calculates and prints loss
+  loss = numpy.square(o_data_predictions - o_data).sum()
+  loss_array = numpy.append(loss_array, loss)
+  indices = numpy.append(indices, i)
+#
+  grad_pred = 2 * (o_data_predictions - o_data)
+  grad_w2 = h_relu.T.dot(grad_pred)
+  grad_h_relu = grad_pred.dot(w2.T)
+  grad_h_values = grad_h_relu.copy()
+  grad_h_values[h_values < 0] = 0
+  grad_w1 = i_data.T.dot(grad_h_values)
+
+  w1 = w1 - grad_w1 * 1e-4
+  w2 = w2 - grad_w2 * 1e-4
+  print(loss)
+
+plt.plot(indices, loss_array)
+plt.legend(['loss over time'])
+plt.show()
+
+print(o_data)
+print(o_data_predictions)
